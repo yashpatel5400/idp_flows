@@ -21,9 +21,9 @@ from typing import Any, Callable, Mapping, Sequence, Union
 
 import chex
 import distrax
-from flows_for_atomic_solids.models import bijectors
-from flows_for_atomic_solids.models import embeddings
-from flows_for_atomic_solids.models import utils
+from idp_flows.models import bijectors
+from idp_flows.models import embeddings
+from idp_flows.models import utils
 import haiku as hk
 import jax
 import jax.numpy as jnp

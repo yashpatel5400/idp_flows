@@ -22,10 +22,10 @@ from absl import app
 from absl import flags
 import chex
 import distrax
-from flows_for_atomic_solids.experiments import lennard_jones_config
-from flows_for_atomic_solids.experiments import monatomic_water_config
-from flows_for_atomic_solids.experiments import utils
-from flows_for_atomic_solids.utils import observable_utils as obs_utils
+from idp_flows.experiments import lennard_jones_config
+from idp_flows.experiments import monatomic_water_config
+from idp_flows.experiments import utils
+from idp_flows.utils import observable_utils as obs_utils
 import haiku as hk
 import jax
 import jax.numpy as jnp

@@ -19,8 +19,8 @@
 from typing import Any, Mapping
 import chex
 import distrax
-from flows_for_atomic_solids.models import bijectors
-from flows_for_atomic_solids.models import particle_models
+from idp_flows.models import bijectors
+from idp_flows.models import particle_models
 import numpy as np
 
 Array = chex.Array

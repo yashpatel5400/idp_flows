@@ -19,7 +19,7 @@
 from typing import Optional
 
 import chex
-from flows_for_atomic_solids.systems import energies
+from idp_flows.systems import energies
 
 import jax.numpy as jnp
 

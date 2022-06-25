@@ -17,9 +17,9 @@
 # This script installs the dependencies needed to run the training script for
 # a flow modelling atomic solids.
 
-python3 -m venv flows_for_atomic_solids_env
-source flows_for_atomic_solids_env/bin/activate
+python3 -m venv idp_flows_env
+source idp_flows_env/bin/activate
 pip install --upgrade pip
-pip install -r flows_for_atomic_solids/requirements.txt
+pip install -r idp_flows/requirements.txt
 
-python -m flows_for_atomic_solids.experiments.train --system='lj_32' --num_iterations=0
+python -m idp_flows.experiments.train --system='lj_32' --num_iterations=0

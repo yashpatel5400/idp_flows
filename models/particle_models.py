@@ -22,9 +22,9 @@ from typing import Optional, Tuple
 
 import chex
 import distrax
-from flows_for_atomic_solids.models import distributions
-from flows_for_atomic_solids.utils import lattice_utils
-from flows_for_atomic_solids.utils import observable_utils as obs_utils
+from idp_flows.models import distributions
+from idp_flows.utils import lattice_utils
+from idp_flows.utils import observable_utils as obs_utils
 import jax
 import jax.numpy as jnp
 import numpy as np

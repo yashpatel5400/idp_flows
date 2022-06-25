@@ -20,8 +20,8 @@ import math
 from typing import Optional
 
 import chex
-from flows_for_atomic_solids.systems import energies
-from flows_for_atomic_solids.utils import observable_utils as obs_utils
+from idp_flows.systems import energies
+from idp_flows.utils import observable_utils as obs_utils
 import jax
 import jax.numpy as jnp
 

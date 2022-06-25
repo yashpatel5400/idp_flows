@@ -16,12 +16,12 @@
 
 """Config file for a Lennard-Jones system in the solid FCC phase."""
 
-from flows_for_atomic_solids.experiments import utils
-from flows_for_atomic_solids.models import attention
-from flows_for_atomic_solids.models import coupling_flows
-from flows_for_atomic_solids.models import particle_model_constructors
-from flows_for_atomic_solids.models import particle_models
-from flows_for_atomic_solids.systems.lennard_jones import LennardJonesEnergy
+from idp_flows.experiments import utils
+from idp_flows.models import attention
+from idp_flows.models import coupling_flows
+from idp_flows.models import particle_model_constructors
+from idp_flows.models import particle_models
+from idp_flows.systems.lennard_jones import LennardJonesEnergy
 import jax.numpy as jnp
 from ml_collections import config_dict
 
