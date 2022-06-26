@@ -15,3 +15,11 @@ python -m pip install optax
 python -m pip install distrax
 PYTHONPATH=/home/[uniqname] python experiments/train.py
 ```
+
+For running on multiple nodes, the following additional steps must be taken:
+
+```bash
+module load gcc/9.2.0
+module load openmpi/4.1.2
+python -m pip install mpi4jax
+```

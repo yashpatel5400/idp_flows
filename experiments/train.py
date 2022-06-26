@@ -16,11 +16,15 @@
 
 """Energy-based training of a flow model on an atomistic system."""
 
+import sys
+sys.path.append("../")
+
 from typing import Callable, Dict, Tuple, Union
 
 from absl import app
 from absl import flags
 import chex
+import copy
 import distrax
 from idp_flows.experiments import lennard_jones_config
 from idp_flows.experiments import monatomic_water_config
@@ -31,10 +35,17 @@ import jax
 import jax.numpy as jnp
 import optax
 
+from mpi4py import MPI
+import mpi4jax
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
 Array = chex.Array
 Numeric = Union[Array, float]
 
-flags.DEFINE_enum('system', 'mw_cubic_64',
+flags.DEFINE_enum('system', 'mw_cubic_8',
                   ['mw_cubic_8', 'mw_cubic_64', 'mw_cubic_216', 'mw_cubic_512',
                    'mw_hex_64', 'mw_hex_216', 'mw_hex_512',
                    'lj_32', 'lj_256', 'lj_500',
@@ -112,7 +123,7 @@ def main(_):
         model=model,
         energy_fn=energy_fn_train,
         beta=state.beta,
-        num_samples=config.train.batch_size,
+        num_samples=config.train.batch_size // size,
         )
 
     metrics = {
@@ -147,7 +158,7 @@ def main(_):
     return metrics
 
   print(f'Initialising system {system}')
-  rng_key = jax.random.PRNGKey(config.train.seed)
+  rng_key = jax.random.PRNGKey(config.train.seed + rank) # each MPI node is seeded differently to benefit from parallelism
   init_fn, apply_fn = hk.transform(loss_fn)
   _, apply_eval_fn = hk.transform(eval_fn)
 
@@ -158,8 +169,9 @@ def main(_):
   def _loss(params, rng):
     loss, metrics = apply_fn(params, rng)
     return loss, metrics
-  jitted_loss = jax.jit(jax.value_and_grad(_loss, has_aux=True))
-  jitted_eval = jax.jit(apply_eval_fn)
+  
+  jitted_loss = jax.value_and_grad(_loss, has_aux=True) # jax.jit(jax.value_and_grad(_loss, has_aux=True))
+  jitted_eval = apply_eval_fn # jax.jit(apply_eval_fn)
 
   step = 0
   print('Beginning of training.')
@@ -167,15 +179,35 @@ def main(_):
     # Training update.
     rng_key, loss_key = jax.random.split(rng_key)
     (_, metrics), g = jitted_loss(params, loss_key)
-    if (step % 50) == 0:
-      print(f'Train[{step}]: {metrics}')
-    updates, opt_state = optimizer.update(g, opt_state, params)
-    params = optax.apply_updates(params, updates)
+    
+    if rank == 0:
+      if (step % 25) == 0:
+        print(f'Train[{step}]: {metrics}')
 
-    if (step % config.test.test_every) == 0:
-      rng_key, val_key = jax.random.split(rng_key)
-      metrics = jitted_eval(params, val_key)
-      print(f'Valid[{step}]: {metrics}')
+      for i in range(1, size):
+        data = comm.recv(source=i)
+
+        for layer in data:
+          for key in data[layer]:
+            g[layer][key] += data[layer][key]
+
+      for layer in g:
+        for key in g[layer]:
+          g[layer][key] = g[layer][key] / size
+
+      updates, opt_state = optimizer.update(g, opt_state, params)
+      params = optax.apply_updates(params, updates)
+
+      for i in range(1, size):
+        comm.send(params, dest=i)
+
+      if (step % config.test.test_every) == 0:
+        rng_key, val_key = jax.random.split(rng_key)
+        metrics = jitted_eval(params, val_key)
+        print(f'Valid[{step}]: {metrics}')
+    else:
+      comm.send(g, dest=0)
+      params = comm.recv(source=0)
 
     step += 1
 
