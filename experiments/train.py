@@ -66,12 +66,12 @@ def _get_loss(
     beta: Numeric,
     num_samples: int) -> Tuple[Array, Dict[str, Array]]:
   """Returns the loss and stats."""
-  rng_key = hk.next_rng_key()
+  for _ in range(rank + 1):
+    rng_key = hk.next_rng_key()
   samples, log_prob = model.sample_and_log_prob(
       seed=rng_key, sample_shape=num_samples)
   energies = energy_fn(samples)
   energy_loss = jnp.mean(beta * energies + log_prob)
-
   loss = energy_loss
   stats = {
       'energy': energies,
@@ -158,7 +158,7 @@ def main(_):
     return metrics
 
   print(f'Initialising system {system}')
-  rng_key = jax.random.PRNGKey(config.train.seed + rank) # each MPI node is seeded differently to benefit from parallelism
+  rng_key = jax.random.PRNGKey(config.train.seed) # each MPI node is seeded differently to benefit from parallelism
   init_fn, apply_fn = hk.transform(loss_fn)
   _, apply_eval_fn = hk.transform(eval_fn)
 
