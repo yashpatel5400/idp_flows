@@ -1,7 +1,3 @@
-"""
-Alkane Generators
-=================
-"""
 from rdkit import Chem
 import numpy as np
 import random

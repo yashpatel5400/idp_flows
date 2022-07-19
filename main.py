@@ -1,11 +1,10 @@
 import numpy as np
 import torch
 import random
+import logging
 
 from generate_alkanes import generate_branched_alkane
 
-import logging
-import pickle
 logging.basicConfig(level=logging.DEBUG)
 
 random.seed(0)
